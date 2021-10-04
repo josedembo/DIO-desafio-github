@@ -2,7 +2,7 @@ package cursos.java;
 
 import java.util.Scanner;
 
-public class Carro {
+public class Teste {
 
     public static void name() {
         Scanner leitor = new Scanner(System.in);
