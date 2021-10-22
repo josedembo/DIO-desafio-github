@@ -9,6 +9,7 @@ function sum() {
 
 // uma forma
 function restSum(...args) {
+
     let sum = 0;
 
     for (number of args) {

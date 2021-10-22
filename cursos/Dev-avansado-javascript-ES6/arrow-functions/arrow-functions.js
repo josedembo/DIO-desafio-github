@@ -4,8 +4,10 @@ let object = {
         this.log("Execute the function log");
         var _this = this;
 
-        setTimeout(function () {
-            _this.log("execute ofter 1000ms")
+        console.log("function normal", this);
+
+        setTimeout(() => {
+            this.log("execute ofter 1000ms");
         }, 1000);
     },
 
@@ -14,9 +16,7 @@ let object = {
     }
 }
 
-function creatObj() {
-    return {}
-}
+const testing = _ => console.log("hello");
 
 const obj = {
     showContext: function () {
@@ -47,4 +47,5 @@ function multiply(a = 1, b = 2) {
 // obj.showContext();
 
 // date.showDate();
-console.log(multiply(5, undefined))
+// console.log(multiply(5))
+testing();
