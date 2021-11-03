@@ -1,11 +1,11 @@
 import React from "react";
 
-const Item = (props) => {
+const Item = ({ children }) => {
 
     return (
         <>
-            <a href="/" className={props.className}>
-                {props.children}
+            <a href="/" className="list-group-item list-group-item-action list-group-item-success">
+                {children}
             </a>
         </>
     );

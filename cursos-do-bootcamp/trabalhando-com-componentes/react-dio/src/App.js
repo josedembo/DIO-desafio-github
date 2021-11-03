@@ -1,23 +1,26 @@
 import React from "react";
-import Item from "./components/Item"
+import Item from "./components/Item";
+import Card from "./components/Card";
 
-const color = (color) => `list-group-item list-group-item-action list-group-item-${color}`;
+// const color = (color) => `list-group-item list-group-item-action list-group-item-${color}`;
 
 const App = () => {
   return (
-    <div className="container">
+    <div >
       <h1>My firts aplication of react</h1>
       <p>Primeiro paragrafo</p>
       <ul>
-        <Item className={color("primary")}>
+        <Item>
           item 1
         </Item>
-        <Item className={color("secundary")}>
+        <Item>
           item 2
         </Item>
-        <Item className={color("success")}>
+        <Item>
           <strong>Item 3</strong>
         </Item>
+        <br />
+        <Card />
       </ul>
     </div>
   );
