@@ -1,6 +1,7 @@
 import db from "../db";
-import { User } from "../models/user.models";
+import { User } from "../models/user.model";
 import { config } from "dotenv";
+import { DatabaseError } from "../models/errors/DatabaseError.model";
 config();
 
 class UsersRepository {
@@ -15,29 +16,74 @@ class UsersRepository {
 
     async findBYId(id: string): Promise<User> {
 
-        const querySelect = `SELECT id,username FROM apliation_user WHERE id=$1`
+        try {
 
-        const values = [id];
-        const { rows } = await db.query<User>(querySelect, values);
+            const querySelect = `SELECT id,username FROM apliation_user WHERE id=$1`
 
+            const values = [id];
+            const { rows } = await db.query<User>(querySelect, values);
+
+
+            const [user] = rows;
+
+            return user;
+        } catch (error) {
+
+            throw new DatabaseError("Erro na busca por id", error);
+        }
+
+
+    }
+
+    async create({ username, password }: User): Promise<string> {
+        const script = `
+        INSERT INTO
+        apliation_user(username, password)
+        Values($1,crypt($2, '${process.env.SECRET_KEY_PG_CRYPT}'))
+        RETURNING id
+        `
+        const values = [username, password]
+
+        const { rows } = await db.query<{ id: string }>(script, values);
+
+        const [user] = rows;
+        return user.id;
+
+    }
+
+    async remove(id: string): Promise<string> {
+
+        const script = `
+        DELETE FROM apliation_user
+        WHERE id =$1
+        RETURNING id
+        `
+        const values = [id]
+        const { rows } = await db.query<{ id: string }>(script, values)
 
         const [user] = rows;
 
-        return user;
+        // console.log(user.id);
+        return user.id;
 
     }
 
-    async createUser({ username, password }: User) {
-        const querytInsert = `
-        INSERT INTO
-        apliation_user(username, password)
-        Values('${username}',crypt('${password}', '${process.env.SECRET_KEY_PG_CRYPT}'))
+
+    async update(user: User): Promise<void> {
+
+        const script = `
+        UPDATE apliation_user
+        SET 
+            username=$1,
+            password=crypt($2, '${process.env.SECRET_KEY_PG_CRYPT}') 
+
+        WHERE id=$3
         `
-        const { rowCount } = await db.query(querytInsert);
-
-        return rowCount;
+        const values = [user.username, user.password, user.id]
+        await db.query(script, values)
 
     }
+
 }
 
 

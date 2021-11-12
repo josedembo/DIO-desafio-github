@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import statusCodes, { StatusCodes } from "http-status-codes";
+import { DatabaseError } from "../models/errors/DatabaseError.model";
 import UsersRepsitory from "../repositors/UsersRepsitory";
 
 interface IUsers {
@@ -16,7 +17,7 @@ const users: IUsers[] = [];
 
 usersRoute.post("/", async (request: Request, response: Response) => {
     const { username, password } = request.body;
-    const user = await UsersRepsitory.createUser({ username, password });
+    const user = await UsersRepsitory.create({ username, password });
 
     return response.status(statusCodes.CREATED).json(user);
 });
@@ -28,45 +29,44 @@ usersRoute.get("/", async (request: Request, response: Response, next: NextFunct
 });
 
 usersRoute.get("/:id", async (request: Request<{ id: string }>, response: Response) => {
-    const { id } = request.params
 
-    const user = await UsersRepsitory.findBYId(id);
+    try {
+        const { id } = request.params
 
-    return response.status(StatusCodes.OK).json(user);
+        const user = await UsersRepsitory.findBYId(id);
+
+        return response.status(StatusCodes.OK).json(user);
+
+    } catch (error) {
+        if (error instanceof DatabaseError) {
+            return response.sendStatus(statusCodes.BAD_REQUEST);
+        } else {
+            return response.sendStatus(statusCodes.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 });
 
 
-usersRoute.put("/", (request: Request, response: Response) => {
-    const { id } = request.headers;
-    const updateUser = request.body;
+usersRoute.put("/:id", async (request: Request, response: Response) => {
+    const { id } = request.params;
+    const user = request.body;
 
-    const userIndex = users.findIndex(user => user.id === id);
+    user.id = id;
 
-    if (userIndex < 0) {
-        return response.status(statusCodes.NOT_FOUND).json({ error: "user not faund" })
-    }
+    await UsersRepsitory.update(user);
 
-    const userUpdated = { ...users[userIndex], ...updateUser };
-
-    users[userIndex] = userUpdated;
-
-    return response.status(statusCodes.CREATED).json(userUpdated);
+    return response.status(statusCodes.CREATED).send();
 });
 
 
+usersRoute.delete("/:id", async (request: Request<{ id: string }>, response: Response) => {
+    const { id } = request.params;
 
-usersRoute.delete("/", (request: Request<{ id: string }>, response: Response) => {
-    const { id } = request.headers;
+    const userId = await UsersRepsitory.remove(id);
+    console.log(userId);
 
-    const userIndex = users.findIndex(user => user.id === id);
-
-    if (userIndex < 0) {
-        return response.status(statusCodes.NOT_FOUND).json({ error: "user not faund" })
-    }
-
-    users.splice(userIndex, 1);
-
-    return response.status(statusCodes.NO_CONTENT).send();
+    return response.status(statusCodes.NO_CONTENT).json({ id: userId });
 });
 
 
