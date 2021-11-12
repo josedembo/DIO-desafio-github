@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
 import statusCodes, { StatusCodes } from "http-status-codes";
-import { v4 as uuidv4 } from "uuid";
 import UsersRepsitory from "../repositors/UsersRepsitory";
 
 interface IUsers {
@@ -15,17 +14,9 @@ const usersRoute = Router();
 const users: IUsers[] = [];
 
 
-usersRoute.post("/", (request: Request, response: Response) => {
-    const { name, username, password } = request.body;
-
-    const user = {
-        id: uuidv4(),
-        name,
-        username,
-        password
-    }
-
-    users.push(user);
+usersRoute.post("/", async (request: Request, response: Response) => {
+    const { username, password } = request.body;
+    const user = await UsersRepsitory.createUser({ username, password });
 
     return response.status(statusCodes.CREATED).json(user);
 });
@@ -36,10 +27,11 @@ usersRoute.get("/", async (request: Request, response: Response, next: NextFunct
 
 });
 
-usersRoute.get("/:id", (request: Request<{ id: string }>, response: Response) => {
+usersRoute.get("/:id", async (request: Request<{ id: string }>, response: Response) => {
     const { id } = request.params
 
-    const user = users.find(user => user.id === id);
+    const user = await UsersRepsitory.findBYId(id);
+
     return response.status(StatusCodes.OK).json(user);
 });
 

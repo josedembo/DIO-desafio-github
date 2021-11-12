@@ -1,7 +1,9 @@
 import { Pool } from "pg";
+import { config } from "dotenv";
 
+config();
 
-const connectionString = 'postgres://syzwjsgd:0vcEXzgu53i9czDZJSLw9fb6XjYXDRI2@tuffi.db.elephantsql.com/syzwjsgd';
+const connectionString = `${process.env.POSTGRES_DB_URL_CONECTION}`
 
 const db = new Pool({ connectionString });
 
