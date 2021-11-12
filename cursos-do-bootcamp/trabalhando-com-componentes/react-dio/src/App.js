@@ -7,7 +7,7 @@ import Card from "./components/Card";
 const App = () => {
   return (
     <div >
-      <h1>My firts aplication of react</h1>
+      <h1>My firts aplication with react</h1>
       <p>Primeiro paragrafo</p>
       <ul>
         <Item>

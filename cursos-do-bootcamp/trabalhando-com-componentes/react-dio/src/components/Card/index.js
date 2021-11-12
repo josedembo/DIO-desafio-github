@@ -19,10 +19,10 @@ const Card = () => {
             </div>
             <div className="card-body" >
                 <Button className="btn btn-success" onClick={adicionar}>
-                    adicionar
+                    Adicionar
                 </Button>
                 <Button className="btn btn-danger" onClick={remover}>
-                    remover
+                    Remover
                 </Button>
                 <p>{valor}</p>
             </div>
