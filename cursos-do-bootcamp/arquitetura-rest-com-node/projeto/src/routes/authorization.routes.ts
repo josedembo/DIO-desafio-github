@@ -4,11 +4,15 @@ import JWT from "jsonwebtoken";
 import { config } from "dotenv";
 import { basicAuthenticationMiddleware } from "../middlewares/basic-authentication.middlewar";
 import { forbiddenError } from "../models/errors/forbiddenError.model";
+import { jwtAuthenticationMiddleware } from "../middlewares/jwt-authentication.meddlewar";
 config();
 
 
 const authorizationRoutes = Router();
 
+authorizationRoutes.post("/token/valide", jwtAuthenticationMiddleware, (request: Request, response: Response, next: NextFunction) => {
+    return response.sendStatus(StatusCodes.OK);
+});
 
 authorizationRoutes.post("/token", basicAuthenticationMiddleware, async (request: Request, response: Response, next: NextFunction) => {
     try {
@@ -33,7 +37,8 @@ authorizationRoutes.post("/token", basicAuthenticationMiddleware, async (request
 
         next(error)
     }
-})
+});
+
 
 
 export { authorizationRoutes }

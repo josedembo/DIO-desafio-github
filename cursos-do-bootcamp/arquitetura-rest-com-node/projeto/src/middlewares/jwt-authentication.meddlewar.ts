@@ -2,11 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { forbiddenError } from "../models/errors/forbiddenError.model";
 import JWT from "jsonwebtoken";
 import { config } from "dotenv";
-import UsersRepsitory from "../repositors/UsersRepsitory";
 config();
 
 
-export async function bearerAuthenticationMiddleware(request: Request, response: Response, next: NextFunction) {
+export async function jwtAuthenticationMiddleware(request: Request, response: Response, next: NextFunction) {
 
     try {
         const authorizationHeader = request.headers.authorization;
@@ -27,19 +26,28 @@ export async function bearerAuthenticationMiddleware(request: Request, response:
             throw new forbiddenError("invalid token");
         }
 
-        const tokenPayload = JWT.verify(token, `${process.env.SICRET_KEY_JWT}`)
+        try {
 
-        if (typeof tokenPayload !== "object" || !tokenPayload.sub) {
+            const tokenPayload = JWT.verify(token, `${process.env.SICRET_KEY_JWT}`)
+
+            if (typeof tokenPayload !== "object" || !tokenPayload.sub) {
+                throw new forbiddenError("invalid tokennnn")
+            }
+
+            const user = {
+                id: tokenPayload.sub,
+                username: tokenPayload.userName
+            }
+
+            // dados do usuario autenticado
+            request.user = user;
+
+            next();
+
+        } catch (error) {
             throw new forbiddenError("invalid token")
         }
-        const id = tokenPayload.sub;
 
-        const user = await UsersRepsitory.findBYId(id);
-
-        // dados do usuario autenticado
-        request.user = user;
-
-        next();
 
     } catch (error) {
 

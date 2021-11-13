@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
-import statusCodes, { StatusCodes } from "http-status-codes";
-import { bearerAuthenticationMiddleware } from "../middlewares/bearer-authentication.meddlewar";
+import statusCodes from "http-status-codes";
+import { jwtAuthenticationMiddleware } from "../middlewares/jwt-authentication.meddlewar";
 import UsersRepsitory from "../repositors/UsersRepsitory";
 
 
@@ -14,8 +14,8 @@ usersRoute.post("/", async (request: Request, response: Response) => {
     return response.status(statusCodes.CREATED).json(user);
 });
 
-usersRoute.get("/", bearerAuthenticationMiddleware, async (request: Request, response: Response, next: NextFunction) => {
-    console.log(request.headers["authorization"]);
+usersRoute.get("/", jwtAuthenticationMiddleware, async (request: Request, response: Response, next: NextFunction) => {
+    // console.log(request.headers["authorization"]);
     const users = await UsersRepsitory.findAllUsers();
     return response.status(statusCodes.OK).json(users);
 
@@ -28,7 +28,7 @@ usersRoute.get("/:id", async (request: Request<{ id: string }>, response: Respon
 
         const user = await UsersRepsitory.findBYId(id);
 
-        return response.status(StatusCodes.OK).json(user);
+        return response.status(statusCodes.OK).json(user);
 
     } catch (error) {
         next(error);
