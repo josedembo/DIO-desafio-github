@@ -1,18 +1,9 @@
 import { NextFunction, Request, Response, Router } from "express";
 import statusCodes, { StatusCodes } from "http-status-codes";
-import { DatabaseError } from "../models/errors/DatabaseError.model";
 import UsersRepsitory from "../repositors/UsersRepsitory";
 
-interface IUsers {
-    id: string
-    name: string
-    username: string
-    password: string
-}
 
 const usersRoute = Router();
-
-const users: IUsers[] = [];
 
 
 usersRoute.post("/", async (request: Request, response: Response) => {
@@ -23,12 +14,13 @@ usersRoute.post("/", async (request: Request, response: Response) => {
 });
 
 usersRoute.get("/", async (request: Request, response: Response, next: NextFunction) => {
+    console.log(request.headers["authorization"]);
     const users = await UsersRepsitory.findAllUsers();
     return response.status(statusCodes.OK).json(users);
 
 });
 
-usersRoute.get("/:id", async (request: Request<{ id: string }>, response: Response) => {
+usersRoute.get("/:id", async (request: Request<{ id: string }>, response: Response, next: NextFunction) => {
 
     try {
         const { id } = request.params
@@ -38,15 +30,10 @@ usersRoute.get("/:id", async (request: Request<{ id: string }>, response: Respon
         return response.status(StatusCodes.OK).json(user);
 
     } catch (error) {
-        if (error instanceof DatabaseError) {
-            return response.sendStatus(statusCodes.BAD_REQUEST);
-        } else {
-            return response.sendStatus(statusCodes.INTERNAL_SERVER_ERROR);
-        }
+        next(error);
     }
 
 });
-
 
 usersRoute.put("/:id", async (request: Request, response: Response) => {
     const { id } = request.params;

@@ -29,10 +29,33 @@ class UsersRepository {
             return user;
         } catch (error) {
 
-            throw new DatabaseError("Erro na busca por id", error);
+            throw new DatabaseError("user not found", error);
         }
 
 
+    }
+
+    async findByUsernameAndPassword({ username, password }: User): Promise<User | null> {
+
+        try {
+
+            const querySelect =
+                `SELECT id,username 
+                FROM apliation_user 
+                WHERE username=$1 
+                AND password = crypt($2,'${process.env.SECRET_KEY_PG_CRYPT}') `
+
+            const values = [username, password];
+            const { rows } = await db.query<User>(querySelect, values);
+
+
+            const [user] = rows;
+
+            return user || null;
+        } catch (error) {
+
+            throw new DatabaseError("user not found");
+        }
     }
 
     async create({ username, password }: User): Promise<string> {
