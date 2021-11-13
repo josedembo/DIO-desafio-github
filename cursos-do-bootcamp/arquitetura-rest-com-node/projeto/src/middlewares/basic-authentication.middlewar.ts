@@ -5,16 +5,15 @@ import UsersRepsitory from "../repositors/UsersRepsitory";
 
 export async function basicAuthenticationMiddleware(request: Request, response: Response, next: NextFunction) {
     try {
-        const authoriztionHeaders = request.headers.authorization;
+        const authorizationHeader = request.headers.authorization;
 
-        if (!authoriztionHeaders) {
+        if (!authorizationHeader) {
             throw new forbiddenError("not authorizated");
         }
 
         // basic a82jirh9h21o==
-        console.log(authoriztionHeaders)
 
-        const [authenticationType, token] = authoriztionHeaders.split(" ");
+        const [authenticationType, token] = authorizationHeader.split(" ");
 
         if (authenticationType !== "Basic" || !token) {
             throw new forbiddenError("authentication type invalid");

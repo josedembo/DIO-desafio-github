@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import statusCodes, { StatusCodes } from "http-status-codes";
+import { bearerAuthenticationMiddleware } from "../middlewares/bearer-authentication.meddlewar";
 import UsersRepsitory from "../repositors/UsersRepsitory";
 
 
@@ -13,7 +14,7 @@ usersRoute.post("/", async (request: Request, response: Response) => {
     return response.status(statusCodes.CREATED).json(user);
 });
 
-usersRoute.get("/", async (request: Request, response: Response, next: NextFunction) => {
+usersRoute.get("/", bearerAuthenticationMiddleware, async (request: Request, response: Response, next: NextFunction) => {
     console.log(request.headers["authorization"]);
     const users = await UsersRepsitory.findAllUsers();
     return response.status(statusCodes.OK).json(users);
