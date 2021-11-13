@@ -23,9 +23,9 @@ authorizationRoutes.post("/token", basicAuthenticationMiddleware, async (request
         const jwtOptions = { subject: user?.id, }
         const jwtSicret = `${process.env.SICRET_KEY_JWT}`
 
+
         const jwtToken = JWT.sign(jwtPayload, jwtSicret, jwtOptions);
 
-        // console.log(tokenContent);
 
         return response.status(StatusCodes.OK).json({ token: jwtToken, user });
 
