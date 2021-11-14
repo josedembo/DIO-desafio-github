@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { StatusCodes } from "http-status-codes";
-import JWT from "jsonwebtoken";
+import JWT, { SignOptions } from "jsonwebtoken";
 import { config } from "dotenv";
 import { basicAuthenticationMiddleware } from "../middlewares/basic-authentication.middlewar";
-import { forbiddenError } from "../models/errors/forbiddenError.model";
+import { ForbiddenError } from "../models/errors/ForbiddenError.model";
 import { jwtAuthenticationMiddleware } from "../middlewares/jwt-authentication.meddlewar";
 config();
 
@@ -20,11 +20,11 @@ authorizationRoutes.post("/token", basicAuthenticationMiddleware, async (request
         const { user } = request;
 
         if (!user) {
-            throw new forbiddenError("user not found")
+            throw new ForbiddenError("user not found")
         }
 
         const jwtPayload = { userName: user?.username };
-        const jwtOptions = { subject: user?.id, }
+        const jwtOptions: SignOptions = { subject: user?.id, expiresIn: "1m" }
         const jwtSicret = `${process.env.SICRET_KEY_JWT}`
 
 

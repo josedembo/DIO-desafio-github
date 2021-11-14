@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { forbiddenError } from "../models/errors/forbiddenError.model";
+import { ForbiddenError } from "../models/errors/ForbiddenError.model";
 import JWT from "jsonwebtoken";
 import { config } from "dotenv";
 config();
@@ -11,7 +11,7 @@ export async function jwtAuthenticationMiddleware(request: Request, response: Re
         const authorizationHeader = request.headers.authorization;
 
         if (!authorizationHeader) {
-            throw new forbiddenError("not authorizated");
+            throw new ForbiddenError("not authorizated");
         }
 
         // Bearer a82jirh9h21oiufqwriojfni
@@ -19,11 +19,11 @@ export async function jwtAuthenticationMiddleware(request: Request, response: Re
         const [authenticationType, token] = authorizationHeader.split(" ");
 
         if (authenticationType !== "Bearer" || !token) {
-            throw new forbiddenError("type authentication invalid or not authorizated");
+            throw new ForbiddenError("type authentication invalid or not authorizated");
         }
 
         if (!token) {
-            throw new forbiddenError("invalid token");
+            throw new ForbiddenError("invalid token");
         }
 
         try {
@@ -31,7 +31,7 @@ export async function jwtAuthenticationMiddleware(request: Request, response: Re
             const tokenPayload = JWT.verify(token, `${process.env.SICRET_KEY_JWT}`)
 
             if (typeof tokenPayload !== "object" || !tokenPayload.sub) {
-                throw new forbiddenError("invalid tokennnn")
+                throw new ForbiddenError("invalid tokennnn")
             }
 
             const user = {
@@ -45,7 +45,7 @@ export async function jwtAuthenticationMiddleware(request: Request, response: Re
             next();
 
         } catch (error) {
-            throw new forbiddenError("invalid token")
+            throw new ForbiddenError("invalid token")
         }
 
 

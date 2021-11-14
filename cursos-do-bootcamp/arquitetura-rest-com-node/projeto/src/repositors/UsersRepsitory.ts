@@ -7,9 +7,9 @@ config();
 class UsersRepository {
 
     async findAllUsers(): Promise<User[]> {
-        const querySelect = "SELECT id, username FROM apliation_user"
+        const query = "SELECT id, username FROM apliation_user"
 
-        const { rows } = await db.query<User>(querySelect);
+        const { rows } = await db.query<User>(query);
 
         return rows || [];
     }
@@ -18,10 +18,10 @@ class UsersRepository {
 
         try {
 
-            const querySelect = `SELECT id,username FROM apliation_user WHERE id=$1`
+            const query = `SELECT id,username FROM apliation_user WHERE id=$1`
 
             const values = [id];
-            const { rows } = await db.query<User>(querySelect, values);
+            const { rows } = await db.query<User>(query, values);
 
 
             const [user] = rows;
@@ -35,18 +35,42 @@ class UsersRepository {
 
     }
 
+    async findByUsername(username: string): Promise<User> {
+
+        try {
+
+            const query = `
+                SELECT id,username 
+                FROM apliation_user 
+                WHERE username = $1
+            `
+
+            const values = [username];
+
+            const { rows } = await db.query<User>(query, values);
+
+            const [user] = rows;
+
+            return user || null;
+
+        } catch (error) {
+
+            throw new DatabaseError("user not found");
+        }
+    }
+
     async findByUsernameAndPassword({ username, password }: User): Promise<User | null> {
 
         try {
 
-            const querySelect =
+            const query =
                 `SELECT id,username 
                 FROM apliation_user 
                 WHERE username=$1 
                 AND password = crypt($2,'${process.env.SECRET_KEY_PG_CRYPT}') `
 
             const values = [username, password];
-            const { rows } = await db.query<User>(querySelect, values);
+            const { rows } = await db.query<User>(query, values);
 
 
             const [user] = rows;
@@ -86,7 +110,6 @@ class UsersRepository {
 
         const [user] = rows;
 
-        // console.log(user.id);
         return user.id;
 
     }

@@ -1,4 +1,4 @@
-class forbiddenError extends Error {
+class ForbiddenError extends Error {
     constructor(
         public message: string,
         public error?: any
@@ -8,4 +8,4 @@ class forbiddenError extends Error {
 }
 
 
-export { forbiddenError }
+export { ForbiddenError }

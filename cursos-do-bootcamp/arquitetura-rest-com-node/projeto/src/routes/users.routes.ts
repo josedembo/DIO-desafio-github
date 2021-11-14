@@ -1,17 +1,32 @@
 import { NextFunction, Request, Response, Router } from "express";
 import statusCodes from "http-status-codes";
 import { jwtAuthenticationMiddleware } from "../middlewares/jwt-authentication.meddlewar";
+import { BadRequestError } from "../models/errors/BadRequestError.model";
 import UsersRepsitory from "../repositors/UsersRepsitory";
 
 
 const usersRoute = Router();
 
 
-usersRoute.post("/", async (request: Request, response: Response) => {
-    const { username, password } = request.body;
-    const user = await UsersRepsitory.create({ username, password });
+usersRoute.post("/", async (request: Request, response: Response, next: NextFunction) => {
+    try {
+        const { username, password } = request.body;
 
-    return response.status(statusCodes.CREATED).json(user);
+        const verifyIfUserAlredayExists = await UsersRepsitory.findByUsername(username);
+
+        if (verifyIfUserAlredayExists !== null) {
+            throw new BadRequestError("user already exists");
+        }
+
+        const user = await UsersRepsitory.create({ username, password });
+
+        return response.status(statusCodes.CREATED).json(user);
+
+    } catch (error) {
+
+        next(error);
+
+    }
 });
 
 usersRoute.get("/", jwtAuthenticationMiddleware, async (request: Request, response: Response, next: NextFunction) => {
